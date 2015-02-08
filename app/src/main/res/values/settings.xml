@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="default_postal_code">15174</string>
+    <string name="default_format_mode">json</string>
+    <string name="default_metric">metric</string>
+    <string name="default_lang">sp</string>
+    <string name="default_forecast_days">7</string>
+    <string name="country_param">q</string>
+    <string name="mode_param">mode</string>
+    <string name="units_param">units</string>
+    <string name="lang_param">lang</string>
+    <string name="count_param">count</string>
+    <string name="url_forecast_service">//api.openweathermap.org/data/2.5/forecast/daily</string>
+</resources>
