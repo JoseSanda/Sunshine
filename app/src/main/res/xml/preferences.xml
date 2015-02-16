@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="@string/pref_postalCode_key"
+        android:title="@string/pref_postalCodeTitle"
+        android:summary="@string/pref_postalCodeSum"
+        android:defaultValue="15965" />
+    <ListPreference
+        android:key="@string/pref_metrics_key"
+        android:title="@string/pref_metricsTitle"
+        android:summary="@string/pref_metricsCodeSum"
+        android:entries="@array/pref_metrics_entries"
+        android:entryValues="@array/pref_metrics_values"
+        android:defaultValue="@string/pref_metrics_default" />
+        />
+</PreferenceScreen>

@@ -1,9 +1,12 @@
 package com.jfsanda.sunshine;
 
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,8 +15,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 
@@ -33,8 +38,10 @@ import java.util.concurrent.ExecutionException;
      * A placeholder fragment containing a simple view.
      */
     public class ForecastFragment extends Fragment {
-        private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
+    private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
         private ArrayAdapter<String> adapter;
+
+        private SharedPreferences preferences;
 
     public ForecastFragment() {
         }
@@ -44,15 +51,26 @@ import java.util.concurrent.ExecutionException;
                                  Bundle savedInstanceState) {
 
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
             ArrayList<String> forecastArray = new ArrayList();
-            forecastArray.addAll(Arrays.asList(new String[]{
-                    "Hoy - Soleado - 10/5","Mañana - Nublado - 10/0","Miercoles - Lluvia - 10/4",
-                    "Jueves - Lluvia - 4/4","Viernes - Nieve - 10/3","Sabado - Soleado - 15/9"}));
-
             adapter = new ArrayAdapter<String>(
                     getActivity(),R.layout.file_item_forecast,R.id.list_item_forecast_textView,forecastArray);
-            ((ListView)rootView.findViewById(R.id.listView_forecast)).setAdapter(adapter);
+            ListView listView = (ListView) rootView.findViewById(R.id.listView_forecast);
+            listView.setAdapter(adapter);
+            listView.setOnItemClickListener(
+                    new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            String item = (String) parent.getItemAtPosition(position);
+                            if(item != null) {
+                                Intent intent = new Intent(getActivity(), DetailActivity.class);
+                                intent.putExtra(Intent.EXTRA_TEXT,item);
+                                startActivity(intent);
+                            }
+                        }
+                    }
+            );
 
             return rootView;
         }
@@ -61,6 +79,12 @@ import java.util.concurrent.ExecutionException;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
     }
 
     @Override
@@ -74,11 +98,22 @@ import java.util.concurrent.ExecutionException;
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_refresh:
-                (new FetchWeatherTask()).execute("15965");
+                updateWeather();
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private void updateWeather(){
+        FetchWeatherTask fetchWeatherTask = new FetchWeatherTask();
+        fetchWeatherTask.execute(
+                preferences.getString(getString(R.string.pref_postalCode_key), getString(R.string.pref_postalCodeDefault)),
+                null,
+                preferences.getString(getString(R.string.pref_metrics_key), getString(R.string.pref_metrics_default)),
+                null, null
+        );
+    }
+
 
     class FetchWeatherTask extends AsyncTask<String,Void,String[]> {
 
