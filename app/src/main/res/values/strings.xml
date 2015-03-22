@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2" >
     <string name="app_name">Tiempo</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Configuración</string>
@@ -18,5 +17,45 @@
     <string name="imperial">imperial</string>
     <string name="map">Mapa</string>
     <string name="action_sharing">Compartir</string>
+    <string name="weather_image_alt"></string>
+    <!-- Date label when displaying today's weather forecast [CHAR LIMIT=20] -->
+    <string name="today">Hoy</string>
+    <!-- Date label when displaying tomorrow's weather forecast [CHAR LIMIT=20] -->
+    <string name="tomorrow">Mañana</string>
+    <!-- Date format for displaying day of week and date (i.e. Mon Jun 1) [CHAR LIMIT=20] -->
+    <string name="format_full_friendly_date"><xliff:g id="day">%1$s</xliff:g>, <xliff:g id="date">%2$s</xliff:g></string>
+    <!-- Strings for formatting weather-related data -->
+    <!-- Temperature format [CHAR LIMIT=5] -->
+    <string name="format_temperature"><xliff:g id="temp">%1.0f</xliff:g>\u00B0</string>
+
+    <!-- Windspeed formats -->
+    <!-- Wind in mph [CHAR LIMIT=25] -->
+    <string name="format_wind_mph">
+    Viento: <xliff:g id="speed">%1$1.0f</xliff:g> mph <xliff:g id="direction">%2$s</xliff:g>
+    </string>
+    <!-- Wind in kph [CHAR LIMIT=25] -->
+    <string name="format_wind_kmh">
+    Viento: <xliff:g id="speed">%1$1.0f</xliff:g> km/h <xliff:g id="direction">%2$s</xliff:g>
+    </string>
+    <!-- Pressure format CHAR LIMIT=25] -->
+    <string name="format_pressure">Presión: <xliff:g id="pressure">%1.0f</xliff:g> hPa</string>
+    <!-- Humidity format CHAR LIMIT=25]-->
+    <string name="format_humidity">Humedad: <xliff:g id="humidity">%1.0f</xliff:g> %%</string>
+    <string name="high_temp_alt">temperatura máxima</string>
+    <string name="low_temp_alt">temperatura mínima</string>
+    <!-- Account type (for sync-adapter authenticator) -->
+    <!-- SyncAdapter related -->
+    <string name="sync_account_type">com.jfsanda.sunshine</string>
+    <string name="content_authority">com.jfsanda.sunshine</string>
+    <!-- Notification Format -->
+    <string name="format_notification"><xliff:g id="condition">%1$s</xliff:g> Máx: <xliff:g id="high">%2$s</xliff:g> Mín: <xliff:g id="low">%3$s</xliff:g></string>
+    <!-- Strings related to Notification preference -->
+    <string name="pref_last_notification">last_notification</string>
+    <string name="enable_notification">Habilitar notificaciones</string>
+    <string name="enable_notification_key">enable_notificacion</string>
+    <string name="enable_notification_default">true</string>
+    <string name="enable_notification_on">Habilitadas</string>
+    <string name="enable_notification_off">Deshabilitadas</string>
+    <string name="enable_notification_summary">Habilitar o desabilita las notificaciones sobre los cambios de tiempo</string>
 
 </resources>

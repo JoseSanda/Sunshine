@@ -1,10 +1,14 @@
 package com.jfsanda.sunshine;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
@@ -14,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.support.v4.app.LoaderManager;
@@ -21,11 +26,13 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.CursorLoader;
 
 import com.jfsanda.sunshine.data.WeatherContract;
+import com.jfsanda.sunshine.sync.SunshineSyncAdapter;
 
 /**
      * A placeholder fragment containing a simple view.
      */
     public class ForecastFragment extends Fragment implements  LoaderManager.LoaderCallbacks<Cursor>{
+
     public static final int LOADER_ID = 0;
     public static final String[] FORECAST_COLUMNS = {
             // In this case the id needs to be fully qualified with a table name, since
@@ -42,7 +49,8 @@ import com.jfsanda.sunshine.data.WeatherContract;
             WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING,
             WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
             WeatherContract.LocationEntry.COLUMN_COORD_LAT,
-            WeatherContract.LocationEntry.COLUMN_COORD_LONG
+            WeatherContract.LocationEntry.COLUMN_COORD_LONG,
+            WeatherContract.WeatherEntry.COLUMN_WEATHER_ID
     };
     // These indices are tied to FORECAST_COLUMNS.  If FORECAST_COLUMNS changes, these
     // must change.
@@ -55,11 +63,38 @@ import com.jfsanda.sunshine.data.WeatherContract;
     static final int COL_WEATHER_CONDITION_ID = 6;
     static final int COL_COORD_LAT = 7;
     static final int COL_COORD_LONG = 8;
+    static final int COL_WEATHER = 9;
+    private static final  String SELECTED_KEY = "SELECTED";
+    private ListView mListView;
 
 
     private ForecastAdapter adapter;
     private SharedPreferences preferences;
+    private int mposition;
+    private Boolean useTodayLayout;
+
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(Uri dateUri);
+    }
+
+
+
     public ForecastFragment() {
+    }
+
+    public void setUseTodayLayout(boolean useTodayLayout){
+        this.useTodayLayout = useTodayLayout;
+        if(adapter!=null){
+            adapter.setUseTodayLayout(useTodayLayout);
+        }
     }
 
     @Override
@@ -77,6 +112,9 @@ import com.jfsanda.sunshine.data.WeatherContract;
     @Override
     public void onLoadFinished(Loader loader, Cursor data) {
         adapter.swapCursor(data);
+        if(mposition != ListView.INVALID_POSITION){
+           mListView.setSelection(mposition);
+        }
     }
 
     @Override
@@ -85,8 +123,16 @@ import com.jfsanda.sunshine.data.WeatherContract;
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if(mposition != ListView.INVALID_POSITION){
+            outState.putInt(SELECTED_KEY,mposition);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             final Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -94,10 +140,14 @@ import com.jfsanda.sunshine.data.WeatherContract;
         CursorLoader loader = (CursorLoader) getLoaderManager().initLoader(LOADER_ID,null,this);
         Cursor cursor = loader.loadInBackground();
         adapter = new ForecastAdapter(getActivity(),cursor,0);
+        if(useTodayLayout!=null) {
+            adapter.setUseTodayLayout(useTodayLayout);
+        }
 
-        ListView listView = (ListView) rootView.findViewById(R.id.listView_forecast);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(
+        mListView = (ListView) rootView.findViewById(R.id.listView_forecast);
+        mListView.setAdapter(adapter);
+
+        mListView.setOnItemClickListener(
                 new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -106,15 +156,17 @@ import com.jfsanda.sunshine.data.WeatherContract;
                         Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
                         if (cursor != null) {
                             String locationSetting = Utility.getPreferredLocation(getActivity());
-                            Intent intent = new Intent(getActivity(), DetailActivity.class)
-                                    .setData(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
-                                            locationSetting, cursor.getLong(COL_WEATHER_DATE)
-                                    ));
-                            startActivity(intent);
+                            ((Callback)getActivity()).onItemSelected(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                                    locationSetting, cursor.getLong(COL_WEATHER_DATE)));
                         }
+                        mposition = position;
                     }
                 }
         );
+        if(savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)){
+            mposition = savedInstanceState.getInt(SELECTED_KEY);
+        }
+
         return rootView;
     }
 
@@ -136,18 +188,26 @@ import com.jfsanda.sunshine.data.WeatherContract;
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_refresh:
-                updateWeather();
-                break;
-        }
+//        switch (item.getItemId()) {
+//            case R.id.action_refresh:
+//                updateWeather();
+//                break;
+//        }
         return super.onOptionsItemSelected(item);
     }
 
     private void updateWeather() {
-        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
+        /*
         String location = Utility.getPreferredLocation(getActivity());
-        weatherTask.execute(location);
+
+        Intent alarmIntent = new Intent(getActivity(),SunshineService.AlarmReceiver.class);
+        alarmIntent.putExtra(SunshineService.PARAMS,location);
+
+        PendingIntent pIntent = PendingIntent.getBroadcast(getActivity(),0,alarmIntent,PendingIntent.FLAG_ONE_SHOT);
+        AlarmManager alarmManager = (AlarmManager)getActivity().getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(),+5000,pIntent);
+*/
+        SunshineSyncAdapter.syncImmediately(getActivity());
     }
 
     public void onLocationChanged(){
