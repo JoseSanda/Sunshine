@@ -18,17 +18,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/list_item_date_textview"
+            android:textAppearance="?android:textAppearanceLarge"
             android:layout_weight="1">
         </TextView>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="13"
+            android:textAppearance="?android:textAppearanceLarge"
             android:id="@+id/list_item_high_textview">
         </TextView>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAppearance="?android:textAppearanceMedium"
             android:text="9"
             android:id="@+id/list_item_low_textview">
         </TextView>
@@ -49,6 +52,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAppearance="?android:textAppearanceMedium"
             android:id="@+id/list_item_forecast_textview">
         </TextView>
 

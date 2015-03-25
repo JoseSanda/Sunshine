@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2" >
     <string name="app_name">Tiempo</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Configuración</string>
     <string name="refresh">Actualizar</string>
-    <string name="title_activity_detail">DetailActivity</string>
+    <string name="title_activity_detail">Detalles</string>
     <string name="pref_postalCodeTitle">Código postal</string>
     <string name="pref_postalCodeSum">Localización de la que obtener la predicción meteorológica</string>
     <string name="pref_metricsTitle">Sistema de medida</string>
@@ -27,7 +26,6 @@
     <!-- Strings for formatting weather-related data -->
     <!-- Temperature format [CHAR LIMIT=5] -->
     <string name="format_temperature"><xliff:g id="temp">%1.0f</xliff:g>\u00B0</string>
-
     <!-- Windspeed formats -->
     <!-- Wind in mph [CHAR LIMIT=25] -->
     <string name="format_wind_mph">
